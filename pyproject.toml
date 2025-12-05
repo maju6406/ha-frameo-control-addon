@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "frameo-control"
+version = "0.1.0"
+description = "REST API and CLI tool for controlling Frameo digital photo frames via ADB over USB or WiFi"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Frameo Control Contributors"}
+]
+keywords = ["frameo", "adb", "photo-frame", "api", "cli", "digital-frame", "android"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Home Automation",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: System :: Hardware",
+]
+
+dependencies = [
+    "adb-shell[async,usb]>=0.4.4",
+    "quart>=0.19.0",
+    "requests>=2.31.0",
+    "docopt>=0.6.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
+]
+
+[project.scripts]
+frameo-cli = "frameo_control.cli:main"
+frameo-api = "frameo_control.api:main"
+
+[project.urls]
+Homepage = "https://github.com/maju6406/frameo-control-api"
+Repository = "https://github.com/maju6406/frameo-control-api"
+Documentation = "https://github.com/maju6406/frameo-control-api#readme"
+"Bug Tracker" = "https://github.com/maju6406/frameo-control-api/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"

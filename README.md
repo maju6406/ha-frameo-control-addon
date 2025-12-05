@@ -35,7 +35,20 @@ frameo-cli upload photo.jpg
 
 ## Quick Start
 
-### Using Docker
+### Option 1: Install via pip (Recommended)
+
+```bash
+# Install the package
+pip install frameo-control
+
+# Start the API server
+frameo-api
+
+# Or use the CLI directly
+frameo-cli --help
+```
+
+### Option 2: Using Docker
 
 ```bash
 # Build the image
@@ -48,13 +61,28 @@ docker run -d \
   -v /dev/bus/usb:/dev/bus/usb \
   -v $(pwd)/data:/data \
   -p 5000:5000 \
-  frameo-adb-api
+  frameo-control-api
 ```
 
-### Using Docker Compose
+### Option 3: Using Docker Compose
 
 ```bash
 docker-compose up -d
+```
+
+### Option 4: From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/maju6406/frameo-control-api.git
+cd frameo-control-api
+
+# Install in development mode
+pip install -e .
+
+# Run the API or CLI
+frameo-api
+frameo-cli --help
 ```
 
 ### Serving Documentation
@@ -235,11 +263,16 @@ ADB authentication keys are automatically generated and stored in `/data/adbkey`
 
 ```
 .
-├── app.py              # Main API server
-├── requirements.txt    # Python dependencies
-├── Dockerfile         # Container definition
-├── docker-compose.yml # Docker Compose config
-└── data/              # ADB keys storage
+├── src/
+│   └── frameo_control/
+│       ├── __init__.py
+│       ├── api.py          # REST API server
+│       └── cli.py          # Command-line interface
+├── pyproject.toml          # Package metadata
+├── Dockerfile              # Container definition
+├── docker-compose.yml      # Docker Compose config
+├── requirements.txt        # Core dependencies
+└── cli-requirements.txt    # CLI dependencies
 ```
 
 ### Requirements
@@ -248,6 +281,40 @@ ADB authentication keys are automatically generated and stored in `/data/adbkey`
 - libusb (for USB connections)
 - adb-shell library
 - Quart web framework
+
+### Building the Package
+
+```bash
+# Install build tools
+pip install build twine
+
+# Build the package
+python -m build
+
+# This creates:
+# - dist/frameo_control-1.0.0-py3-none-any.whl
+# - dist/frameo-control-1.0.0.tar.gz
+```
+
+### Publishing to PyPI
+
+```bash
+# Test on TestPyPI first
+twine upload --repository testpypi dist/*
+
+# Then publish to PyPI
+twine upload dist/*
+```
+
+### Running Tests
+
+```bash
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Run tests (when available)
+pytest
+```
 
 ## Troubleshooting
 

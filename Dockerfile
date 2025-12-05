@@ -9,12 +9,12 @@ RUN apk add --no-cache \
 # Set working directory
 WORKDIR /app
 
-# Copy requirements and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy package files
+COPY pyproject.toml .
+COPY src/ src/
 
-# Copy application code
-COPY app.py .
+# Install the package
+RUN pip install --no-cache-dir -e .
 
 # Create data directory for ADB keys
 RUN mkdir -p /data
@@ -22,5 +22,5 @@ RUN mkdir -p /data
 # Expose API port
 EXPOSE 5000
 
-# Run the application
-CMD ["python3", "app.py"]
+# Run the application using the installed command
+CMD ["frameo-api"]

@@ -1,0 +1,10 @@
+include README.md
+include LICENSE
+include API.md
+include CLI.md
+include EXAMPLES.md
+include WIFI.md
+include openapi.yaml
+include requirements.txt
+include cli-requirements.txt
+recursive-include docs *
