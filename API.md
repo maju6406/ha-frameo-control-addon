@@ -724,5 +724,5 @@ class FrameoClient {
 ## Additional Resources
 
 - **OpenAPI Specification**: See `openapi.yaml` for the complete API specification
-- **GitHub Repository**: [ha-frameo-control-addon](https://github.com/HunorLaczko/ha-frameo-control-addon)
+- **GitHub Repository**: [frameo-control-api](https://github.com/maju6406/frameo-control-api)
 - **ADB Documentation**: [Android Debug Bridge](https://developer.android.com/studio/command-line/adb)

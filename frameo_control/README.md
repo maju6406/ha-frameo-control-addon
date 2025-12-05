@@ -1,9 +1,14 @@
-# Home Assistant Add-on: Frameo Control Backend
+# Legacy Home Assistant Add-on (Deprecated)
 
-This add-on provides the backend service required for the **HA Frameo Control** integration to work. It handles all direct ADB communication with your Frameo device over USB or a network connection.
+> [!WARNING]
+> **This Home Assistant add-on structure is deprecated.** This project has been redesigned as a standalone API and CLI tool.
 
-> [!IMPORTANT]
-> This add-on must be installed and running **before** you install the main `HA Frameo Control` integration from HACS or manually.
+This folder contains legacy Home Assistant add-on files. For the current standalone API and CLI, please use the main project:
 
-For full installation and usage instructions, please see the main project repository:
-[https://github.com/HunorLaczko/ha-frameo-control-addon](https://github.com/HunorLaczko/ha-frameo-control-addon)
+**Current Project:** [Frameo Control API](https://github.com/maju6406/frameo-control-api)
+
+The standalone version provides:
+- REST API server (no HA dependency)
+- Powerful CLI tool
+- Better Docker support
+- Broader integration options
