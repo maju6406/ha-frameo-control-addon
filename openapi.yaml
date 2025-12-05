@@ -1,0 +1,518 @@
+openapi: 3.0.3
+info:
+  title: Frameo ADB Control API
+  description: |
+    REST API for controlling Frameo digital photo frames via ADB (Android Debug Bridge).
+    
+    This API provides endpoints for:
+    - Discovering USB-connected devices
+    - Establishing USB and network connections
+    - Executing shell commands
+    - Reading device state
+    - Enabling wireless debugging
+    
+    ## Authentication
+    
+    ADB authentication is handled automatically using RSA keys stored in `/data/adbkey`.
+    On first connection, you must accept the "Allow USB Debugging" prompt on the Frameo device.
+    
+    ## Connection Flow
+    
+    1. **Discover Devices**: Use `GET /devices/usb` to find connected devices
+    2. **Connect**: Use `POST /connect` with device serial or network address
+    3. **Control**: Use other endpoints to interact with the connected device
+    
+    ## Error Handling
+    
+    All endpoints return JSON responses. Errors include:
+    - `400` - Bad request (missing or invalid parameters)
+    - `500` - Server error (ADB connection failed, device error, etc.)
+    - `503` - Service unavailable (no device connected)
+    
+  version: 1.0.0
+  contact:
+    name: GitHub Repository
+    url: https://github.com/HunorLaczko/ha-frameo-control-addon
+  license:
+    name: License
+    url: https://github.com/HunorLaczko/ha-frameo-control-addon/blob/main/LICENSE
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+  - url: http://{host}:5000
+    description: Custom host
+    variables:
+      host:
+        default: localhost
+        description: Server hostname or IP address
+
+tags:
+  - name: Discovery
+    description: Device discovery operations
+  - name: Connection
+    description: Device connection management
+  - name: Control
+    description: Device control operations
+  - name: State
+    description: Device state information
+  - name: Files
+    description: File upload and download operations
+
+paths:
+  /devices/usb:
+    get:
+      tags:
+        - Discovery
+      summary: List USB devices
+      description: |
+        Scans for and returns all connected USB ADB devices.
+        Returns an array of device serial numbers.
+      operationId: getUsbDevices
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: "ABC123DEF456"
+              examples:
+                found:
+                  summary: Devices found
+                  value: ["ABC123DEF456", "XYZ789GHI012"]
+                empty:
+                  summary: No devices
+                  value: []
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /connect:
+    post:
+      tags:
+        - Connection
+      summary: Connect to device
+      description: |
+        Establishes a persistent connection to a Frameo device.
+        
+        Supports two connection types:
+        - **USB**: Requires device serial number from `/devices/usb`
+        - **Network**: Requires IP address and optional port (default: 5555)
+        
+        Note: Only one device can be connected at a time. A new connection
+        will close any existing connection.
+      operationId: connectDevice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/UsbConnection'
+                - $ref: '#/components/schemas/NetworkConnection'
+            examples:
+              usb:
+                summary: USB connection
+                value:
+                  connection_type: "USB"
+                  serial: "ABC123DEF456"
+              network:
+                summary: Network connection
+                value:
+                  connection_type: "NETWORK"
+                  host: "192.168.1.100"
+                  port: 5555
+      responses:
+        '200':
+          description: Successfully connected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Bad request - missing or invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_serial:
+                  summary: Missing serial number
+                  value:
+                    error: "USB connection requires a serial number."
+                missing_host:
+                  summary: Missing host
+                  value:
+                    error: "Network connection requires a host."
+        '500':
+          description: Connection failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                connection_failed:
+                  summary: Connection error
+                  value:
+                    error: "Connection failed: Device not found"
+
+  /state:
+    post:
+      tags:
+        - State
+      summary: Get device state
+      description: |
+        Retrieves the current power state and brightness level of the connected device.
+        
+        Requires an active device connection established via `/connect`.
+      operationId: getDeviceState
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceState'
+        '503':
+          description: No device connected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Device is not connected or available."
+        '500':
+          description: Command execution failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /shell:
+    post:
+      tags:
+        - Control
+      summary: Execute shell command
+      description: |
+        Executes an arbitrary ADB shell command on the connected device.
+        
+        Common commands:
+        - `input tap X Y` - Tap at screen coordinates
+        - `input swipe X1 Y1 X2 Y2 [duration]` - Swipe gesture
+        - `input text "string"` - Input text
+        - `input keyevent KEYCODE` - Send key event
+        - `am start -n package/activity` - Start app
+        - `pm list packages` - List installed packages
+        - `dumpsys battery` - Battery information
+        - `wm size` - Screen resolution
+        
+        ⚠️ **Warning**: This endpoint allows arbitrary command execution.
+        Use with caution in production environments.
+      operationId: executeShellCommand
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShellCommand'
+            examples:
+              tap:
+                summary: Tap screen
+                value:
+                  command: "input tap 500 500"
+              swipe:
+                summary: Swipe gesture
+                value:
+                  command: "input swipe 100 500 900 500 300"
+              text:
+                summary: Input text
+                value:
+                  command: "input text Hello"
+              keyevent:
+                summary: Send key event
+                value:
+                  command: "input keyevent KEYCODE_HOME"
+      responses:
+        '200':
+          description: Command executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShellResult'
+        '400':
+          description: Bad request - command not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Command not provided"
+        '503':
+          description: No device connected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Command execution failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tcpip:
+    post:
+      tags:
+        - Connection
+      summary: Enable wireless debugging
+      description: |
+        Enables wireless ADB debugging on the connected device.
+        
+        **Requirements**:
+        - Device must be connected via USB
+        - Device and server must be on the same network
+        
+        After enabling, you can connect wirelessly using the device's IP address
+        and port 5555 via the `/connect` endpoint.
+        
+        **Workflow**:
+        1. Connect device via USB
+        2. Call this endpoint to enable wireless debugging
+        3. Disconnect USB cable
+        4. Use `/connect` with device IP address
+      operationId: enableTcpip
+      responses:
+        '200':
+          description: Wireless debugging enabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShellResult'
+              example:
+                result: "TCP/IP enabled on port 5555"
+        '400':
+          description: USB connection required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "A USB connection is required for this action."
+        '500':
+          description: Command execution failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /upload:
+    post:
+      tags:
+        - Files
+      summary: Upload file to device
+      description: |
+        Upload a photo or file to the Frameo device.
+        
+        The file will be uploaded to the specified destination directory
+        (default: `/sdcard/Frameo`) and a media scan will be triggered
+        so the photo appears in the gallery immediately.
+        
+        Supports common image formats: JPG, PNG, GIF, BMP, WEBP
+      operationId: uploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+                destination:
+                  type: string
+                  description: Destination directory on device
+                  default: /sdcard/Frameo
+                  example: /sdcard/Frameo
+            encoding:
+              file:
+                contentType: image/jpeg, image/png, image/gif
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: File uploaded to /sdcard/Frameo/photo.jpg
+                  path:
+                    type: string
+                    example: /sdcard/Frameo/photo.jpg
+        '400':
+          description: Bad request - no file provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: No device connected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Upload failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /download:
+    post:
+      tags:
+        - Files
+      summary: Download file from device
+      description: |
+        Download a file from the Frameo device.
+        
+        Provide the full path to the file on the device.
+        The file will be returned as a binary download.
+      operationId: downloadFile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - path
+              properties:
+                path:
+                  type: string
+                  description: Full path to file on device
+                  example: /sdcard/screenshot.png
+      responses:
+        '200':
+          description: File downloaded successfully
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request - no path provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: No device connected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Download failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    UsbConnection:
+      type: object
+      required:
+        - connection_type
+        - serial
+      properties:
+        connection_type:
+          type: string
+          enum: [USB]
+          example: "USB"
+        serial:
+          type: string
+          description: Device serial number from /devices/usb
+          example: "ABC123DEF456"
+
+    NetworkConnection:
+      type: object
+      required:
+        - connection_type
+        - host
+      properties:
+        connection_type:
+          type: string
+          enum: [NETWORK]
+          example: "NETWORK"
+        host:
+          type: string
+          description: Device IP address or hostname
+          example: "192.168.1.100"
+        port:
+          type: integer
+          description: ADB port number
+          default: 5555
+          example: 5555
+
+    DeviceState:
+      type: object
+      properties:
+        is_on:
+          type: boolean
+          description: Device power state (awake/asleep)
+          example: true
+        brightness:
+          type: integer
+          description: Screen brightness level (0-255)
+          minimum: 0
+          maximum: 255
+          example: 128
+
+    ShellCommand:
+      type: object
+      required:
+        - command
+      properties:
+        command:
+          type: string
+          description: ADB shell command to execute
+          example: "input tap 500 500"
+
+    ShellResult:
+      type: object
+      properties:
+        result:
+          type: string
+          description: Command output or result message
+          example: "TCP/IP enabled on port 5555"
+
+    Success:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "connected"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message describing what went wrong
+          example: "Device is not connected or available."

@@ -1,0 +1,29 @@
+# Docker Compose for Development
+version: '3.8'
+
+services:
+  frameo-adb-api:
+    build: .
+    container_name: frameo-adb-api
+    privileged: true
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+      - ./data:/data
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  # Optional: Serve API documentation
+  docs:
+    image: nginx:alpine
+    container_name: frameo-docs
+    volumes:
+      - ./docs:/usr/share/nginx/html/docs:ro
+      - ./openapi.yaml:/usr/share/nginx/html/openapi.yaml:ro
+      - ./API.md:/usr/share/nginx/html/API.md:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    profiles:
+      - docs

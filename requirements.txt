@@ -1,0 +1,2 @@
+adb-shell[async,usb]>=0.4.4
+quart>=0.19.0

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frameo ADB Control API - Documentation Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+        
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .info-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .info-section h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-section li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .info-section li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        code {
+            background: #f5f5f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .feature strong {
+            color: #2c3e50;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 3rem;
+            opacity: 0.9;
+        }
+        
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖼️ Frameo ADB Control API</h1>
+            <p>REST API for controlling Frameo digital photo frames via ADB</p>
+        </header>
+
+        <div class="info-section">
+            <h2>🚀 Quick Start</h2>
+            <div class="features">
+                <div class="feature">
+                    <strong>1. Discover</strong><br>
+                    <code>GET /devices/usb</code><br>
+                    Find connected USB devices
+                </div>
+                <div class="feature">
+                    <strong>2. Connect</strong><br>
+                    <code>POST /connect</code><br>
+                    Establish device connection
+                </div>
+                <div class="feature">
+                    <strong>3. Control</strong><br>
+                    <code>POST /shell</code><br>
+                    Execute commands on device
+                </div>
+            </div>
+            <p style="margin-top: 1rem; color: #666;">
+                <strong>Base URL:</strong> <code>http://localhost:5000</code>
+            </p>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <div class="card-icon">📚</div>
+                <h2>Swagger UI</h2>
+                <p>Interactive API documentation with "Try it out" functionality. Test endpoints directly from your browser.</p>
+                <div class="card-actions">
+                    <a href="index.html" class="btn btn-primary">Open Swagger UI</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📖</div>
+                <h2>ReDoc</h2>
+                <p>Beautiful three-panel API documentation with search and clean layout for easy reference.</p>
+                <div class="card-actions">
+                    <a href="redoc.html" class="btn btn-primary">Open ReDoc</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📝</div>
+                <h2>API Reference</h2>
+                <p>Complete API documentation with detailed examples in Python and JavaScript.</p>
+                <div class="card-actions">
+                    <a href="../API.md" class="btn btn-primary">View API.md</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">⚙️</div>
+                <h2>OpenAPI Spec</h2>
+                <p>Machine-readable OpenAPI 3.0 specification for generating clients and importing into tools.</p>
+                <div class="card-actions">
+                    <a href="../openapi.yaml" class="btn btn-primary">Download Spec</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>🛠️ Developer Tools</h2>
+            <ul>
+                <li>Import <code>openapi.yaml</code> into <strong>Postman</strong> or <strong>Insomnia</strong></li>
+                <li>Generate client SDKs using <a href="https://openapi-generator.tech/" target="_blank">OpenAPI Generator</a></li>
+                <li>Validate and edit in <a href="https://editor.swagger.io/" target="_blank">Swagger Editor</a></li>
+                <li>Use REST Client VS Code extension with the provided examples</li>
+            </ul>
+        </div>
+
+        <div class="info-section">
+            <h2>📦 Installation</h2>
+            <p>Deploy the API server using Docker:</p>
+            <pre style="background: #f5f5f5; padding: 1rem; border-radius: 6px; overflow-x: auto;"><code># Using Docker Compose
+docker-compose up -d
+
+# Using Docker directly
+docker run -d \
+  --name frameo-adb-api \
+  --privileged \
+  -v /dev/bus/usb:/dev/bus/usb \
+  -v $(pwd)/data:/data \
+  -p 5000:5000 \
+  frameo-adb-api</code></pre>
+        </div>
+
+        <div class="info-section">
+            <h2>🔗 Resources</h2>
+            <ul>
+                <li><a href="https://github.com/HunorLaczko/ha-frameo-control-addon" target="_blank">GitHub Repository</a></li>
+                <li><a href="../README.md">Project README</a></li>
+                <li><a href="https://developer.android.com/studio/command-line/adb" target="_blank">ADB Documentation</a></li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>Made with ❤️ for Frameo enthusiasts</p>
+            <p><a href="https://github.com/HunorLaczko/ha-frameo-control-addon" target="_blank">View on GitHub</a></p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -14,7 +14,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY app/ ./app/
+COPY app.py .
 
 # Create data directory for ADB keys
 RUN mkdir -p /data
@@ -23,4 +23,4 @@ RUN mkdir -p /data
 EXPOSE 5000
 
 # Run the application
-CMD ["python3", "app/app.py"]
+CMD ["python3", "app.py"]

@@ -1,6 +1,0 @@
-#!/usr/bin/with-contenv bashio
-
-bashio::log.info "Starting the generic Frameo Python server..."
-
-# Execute the Python server directly
-exec /usr/bin/python3 /app/app.py
