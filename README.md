@@ -1,6 +1,6 @@
-# Frameo ADB Control API
+# Frameo Control API
 
-A standalone REST API server for controlling Frameo digital photo frames via ADB (Android Debug Bridge). This server provides a simple HTTP interface for communicating with Frameo devices over USB or network connections.
+A standalone REST API server and CLI tool for controlling Frameo digital photo frames via ADB (Android Debug Bridge). This project provides both a simple HTTP interface and a powerful command-line tool for communicating with Frameo devices over USB or network connections.
 
 ## Key Features
 
@@ -39,11 +39,11 @@ frameo-cli upload photo.jpg
 
 ```bash
 # Build the image
-docker build -t frameo-adb-api .
+docker build -t frameo-control-api .
 
 # Run with USB access
 docker run -d \
-  --name frameo-adb-api \
+  --name frameo-control-api \
   --privileged \
   -v /dev/bus/usb:/dev/bus/usb \
   -v $(pwd)/data:/data \
@@ -268,12 +268,10 @@ ADB authentication keys are automatically generated and stored in `/data/adbkey`
 ## Integration
 
 This API can be integrated with:
-- Home automation systems (Home Assistant, OpenHAB, etc.)
+- Home automation systems (Home Assistant, OpenHAB, Node-RED, etc.)
 - Custom scripts and applications
 - Web interfaces
 - Mobile apps
-
-For Home Assistant integration, see: [HA Frameo Control](https://github.com/HunorLaczko/ha-frameo-control)
 
 ## License
 

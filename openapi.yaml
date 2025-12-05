@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Frameo ADB Control API
+  title: Frameo Control API
   description: |
     REST API for controlling Frameo digital photo frames via ADB (Android Debug Bridge).
     

@@ -66,7 +66,7 @@ class FrameoHomeAutomation:
         time.sleep(1)
         self.set_brightness(200)
 
-# Usage with Home Assistant or other automation
+# Usage with Home Automation Systems
 automation = FrameoHomeAutomation()
 
 # When someone arrives home
@@ -976,10 +976,10 @@ def webhook_handler():
 
 ## Summary
 
-The Frameo ADB Control API enables you to:
+The Frameo Control API enables you to:
 
 ✅ **Automate** frame behavior based on time, presence, or events  
-✅ **Integrate** with smart home systems (Home Assistant, Google Home, Alexa)  
+✅ **Integrate** with smart home systems (Home Assistant, Node-RED, OpenHAB, etc.)  
 ✅ **Create** custom interfaces (web apps, mobile apps, voice control)  
 ✅ **Schedule** content rotation and power management  
 ✅ **Monitor** and respond to photo uploads  

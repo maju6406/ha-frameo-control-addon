@@ -2,9 +2,9 @@
 version: '3.8'
 
 services:
-  frameo-adb-api:
+  frameo-control-api:
     build: .
-    container_name: frameo-adb-api
+    container_name: frameo-control-api
     privileged: true
     volumes:
       - /dev/bus/usb:/dev/bus/usb
@@ -16,7 +16,7 @@ services:
   # Optional: Serve API documentation
   docs:
     image: nginx:alpine
-    container_name: frameo-docs
+    container_name: frameo-control-docs
     volumes:
       - ./docs:/usr/share/nginx/html/docs:ro
       - ./openapi.yaml:/usr/share/nginx/html/openapi.yaml:ro
